@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.services import get_pokemon, search_pokemon
+from app.services import get_pokemon, get_pokemon_by_type, search_pokemon
 
 app = FastAPI()
 
@@ -18,3 +18,8 @@ def pokemon_search(name: str):
 @app.get("/pokemon/{name_or_id}")
 def pokemon_details(name_or_id: str):
     return get_pokemon(name_or_id)
+
+
+@app.get("/pokemon")
+def pokemon_by_type(type: str):
+    return get_pokemon_by_type(type)
