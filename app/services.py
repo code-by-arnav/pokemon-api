@@ -1,6 +1,5 @@
 import httpx
-from app.errors import PokemonNotFound
-from app.errors import InvalidPokemonType, PokemonNotFound
+from app.errors import InvalidPokemonType, NoSearchResults, PokemonNotFound
 
 POKEAPI_BASE_URL = "https://pokeapi.co/api/v2"
 
@@ -33,6 +32,8 @@ def search_pokemon(query):
     results = response.json()["results"]
     query = query.lower()
     matches = [p["name"] for p in results if query in p["name"]]
+    if not matches:
+        raise NoSearchResults(query)
     return {"count": len(matches), "results": matches}
 
 def get_pokemon_by_type(type_name):

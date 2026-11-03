@@ -3,3 +3,6 @@ class PokemonNotFound(Exception):
 
 class InvalidPokemonType(Exception):
     pass
+
+class NoSearchResults(Exception):
+    pass
