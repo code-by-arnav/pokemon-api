@@ -6,12 +6,18 @@ POKEAPI_BASE_URL = "https://pokeapi.co/api/v2"
 
 
 def clean_pokemon(raw):
+    sprites = raw.get("sprites") or {}
+    other = sprites.get("other") or {}
+    artwork = other.get("official-artwork") or {}
     return {
         "id": raw["id"],
         "name": raw["name"],
         "height": raw["height"],
         "weight": raw["weight"],
         "types": [t["type"]["name"] for t in raw["types"]],
+        "abilities": [a["ability"]["name"] for a in raw["abilities"]],
+        "stats": {s["stat"]["name"]: s["base_stat"] for s in raw["stats"]},
+        "sprite_url": artwork.get("front_default"),
     }
 
 def get_pokemon(name_or_id):
