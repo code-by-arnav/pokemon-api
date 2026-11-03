@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from app.errors import PokemonNotFound
+from app.errors import InvalidPokemonType, PokemonNotFound
 from app.services import get_pokemon, get_pokemon_by_type, search_pokemon
 
 app = FastAPI()
@@ -12,6 +12,13 @@ def pokemon_not_found_handler(request, exc):
     return JSONResponse(
         status_code=404,
         content={"error": f"Pokemon '{exc}' not found"},
+    )
+
+@app.exception_handler(InvalidPokemonType)
+def invalid_type_handler(request, exc):
+    return JSONResponse(
+        status_code=400,
+        content={"error": f"'{exc}' is not a valid Pokemon type"},
     )
 
 
