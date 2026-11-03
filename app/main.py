@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from app.errors import InvalidPokemonType, NoSearchResults, PokeApiTimeout, PokeApiUnavailable, PokemonNotFound
+from app.errors import EmptySearchQuery ,InvalidPokemonType, NoSearchResults, PokeApiTimeout, PokeApiUnavailable, PokemonNotFound
 from app.services import get_pokemon, get_pokemon_by_type, search_pokemon
 
 app = FastAPI()
@@ -19,6 +19,13 @@ def invalid_type_handler(request, exc):
     return JSONResponse(
         status_code=400,
         content={"error": f"'{exc}' is not a valid Pokemon type"},
+    )
+
+@app.exception_handler(EmptySearchQuery)
+def empty_search_handler(request, exc):
+    return JSONResponse(
+        status_code=400,
+        content={"error": "Search name must not be empty"},
     )
 
 @app.exception_handler(NoSearchResults)
@@ -49,7 +56,7 @@ def health():
 
 
 @app.get("/pokemon/search")
-def pokemon_search(name: str):
+def pokemon_search(name: str = ""):
     return search_pokemon(name)
 
 

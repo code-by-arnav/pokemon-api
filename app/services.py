@@ -1,5 +1,5 @@
 import httpx
-from app.errors import InvalidPokemonType, NoSearchResults, PokeApiTimeout, PokeApiUnavailable, PokemonNotFound
+from app.errors import EmptySearchQuery ,InvalidPokemonType, NoSearchResults, PokeApiTimeout, PokeApiUnavailable, PokemonNotFound
 
 
 POKEAPI_BASE_URL = "https://pokeapi.co/api/v2"
@@ -41,6 +41,8 @@ def get_pokemon(name_or_id):
     return clean_pokemon(response.json())
 
 def search_pokemon(query):
+    if not query.strip():
+        raise EmptySearchQuery()
     url = f"{POKEAPI_BASE_URL}/pokemon?limit=100000"
     response = fetch(url)
     results = response.json()["results"]

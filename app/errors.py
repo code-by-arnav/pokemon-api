@@ -12,3 +12,6 @@ class PokeApiTimeout(Exception):
 
 class PokeApiUnavailable(Exception):
     pass
+
+class EmptySearchQuery(Exception):
+    pass
