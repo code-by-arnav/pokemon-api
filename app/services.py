@@ -1,4 +1,5 @@
 import httpx
+from app.errors import PokemonNotFound
 
 POKEAPI_BASE_URL = "https://pokeapi.co/api/v2"
 
@@ -15,6 +16,8 @@ def clean_pokemon(raw):
 def get_pokemon(name_or_id):
     url = f"{POKEAPI_BASE_URL}/pokemon/{name_or_id}"
     response = httpx.get(url)
+    if response.status_code == 404:
+        raise PokemonNotFound(name_or_id)
     return clean_pokemon(response.json())
 
 def search_pokemon(query):

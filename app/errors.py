@@ -1,0 +1,2 @@
+class PokemonNotFound(Exception):
+    pass
