@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
-from app.errors import InvalidPokemonType, PokemonNotFound , NoSearchResults
+from app.errors import InvalidPokemonType, NoSearchResults, PokeApiTimeout, PokeApiUnavailable, PokemonNotFound
 from app.services import get_pokemon, get_pokemon_by_type, search_pokemon
 
 app = FastAPI()
@@ -28,6 +28,20 @@ def no_search_results_handler(request, exc):
         content={"error": f"No Pokemon found matching '{exc}'"},
     )
 
+@app.exception_handler(PokeApiTimeout)
+def pokeapi_timeout_handler(request, exc):
+    return JSONResponse(
+        status_code=504,
+        content={"error": "PokeAPI took too long to respond"},
+    )
+
+
+@app.exception_handler(PokeApiUnavailable)
+def pokeapi_unavailable_handler(request, exc):
+    return JSONResponse(
+        status_code=502,
+        content={"error": "PokeAPI is unavailable or returned an unexpected error"},
+    )
 
 @app.get("/health")
 def health():
@@ -47,3 +61,4 @@ def pokemon_details(name_or_id: str):
 @app.get("/pokemon")
 def pokemon_by_type(type: str):
     return get_pokemon_by_type(type)
+

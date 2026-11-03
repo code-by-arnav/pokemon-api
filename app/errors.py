@@ -6,3 +6,9 @@ class InvalidPokemonType(Exception):
 
 class NoSearchResults(Exception):
     pass
+
+class PokeApiTimeout(Exception):
+    pass
+
+class PokeApiUnavailable(Exception):
+    pass

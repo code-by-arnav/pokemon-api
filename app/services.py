@@ -1,7 +1,21 @@
 import httpx
-from app.errors import InvalidPokemonType, NoSearchResults, PokemonNotFound
+from app.errors import InvalidPokemonType, NoSearchResults, PokeApiTimeout, PokeApiUnavailable, PokemonNotFound
+
 
 POKEAPI_BASE_URL = "https://pokeapi.co/api/v2"
+REQUEST_TIMEOUT = 5
+
+
+def fetch(url):
+    try:
+        response = httpx.get(url, timeout=REQUEST_TIMEOUT)
+    except httpx.TimeoutException:
+        raise PokeApiTimeout()
+    except httpx.RequestError:
+        raise PokeApiUnavailable()
+    if response.status_code >= 500:
+        raise PokeApiUnavailable()
+    return response
 
 
 def clean_pokemon(raw):
@@ -21,14 +35,14 @@ def clean_pokemon(raw):
 
 def get_pokemon(name_or_id):
     url = f"{POKEAPI_BASE_URL}/pokemon/{name_or_id}"
-    response = httpx.get(url)
+    response = fetch(url)
     if response.status_code == 404:
         raise PokemonNotFound(name_or_id)
     return clean_pokemon(response.json())
 
 def search_pokemon(query):
     url = f"{POKEAPI_BASE_URL}/pokemon?limit=100000"
-    response = httpx.get(url)
+    response = fetch(url)
     results = response.json()["results"]
     query = query.lower()
     matches = [p["name"] for p in results if query in p["name"]]
@@ -38,7 +52,7 @@ def search_pokemon(query):
 
 def get_pokemon_by_type(type_name):
     url = f"{POKEAPI_BASE_URL}/type/{type_name.lower()}"
-    response = httpx.get(url)
+    response = fetch(url)
     if response.status_code == 404:
         raise InvalidPokemonType(type_name)
     entries = response.json()["pokemon"]
