@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-
+import httpx
 from app.main import app
 
 client = TestClient(app)
@@ -117,4 +117,45 @@ def test_search_no_matches(monkeypatch):
 
     response = client.get("/pokemon/search?name=zzzzz")
 
-    assert response.status_code == 404
+
+def test_search_empty_name():
+    response = client.get("/pokemon/search?name=")
+    assert response.status_code == 400
+
+
+def test_search_missing_name():
+    response = client.get("/pokemon/search")
+    assert response.status_code == 400
+
+
+def test_pokeapi_timeout(monkeypatch):
+    def fake_get(url, timeout):
+        raise httpx.TimeoutException("too slow")
+
+    monkeypatch.setattr("app.services.httpx.get", fake_get)
+
+    response = client.get("/pokemon/pikachu")
+
+    assert response.status_code == 504
+
+
+def test_pokeapi_unreachable(monkeypatch):
+    def fake_get(url, timeout):
+        raise httpx.ConnectError("connection failed")
+
+    monkeypatch.setattr("app.services.httpx.get", fake_get)
+
+    response = client.get("/pokemon/pikachu")
+
+    assert response.status_code == 502
+
+
+def test_pokeapi_server_error(monkeypatch):
+    def fake_get(url, timeout):
+        return FakeResponse(500, {})
+
+    monkeypatch.setattr("app.services.httpx.get", fake_get)
+
+    response = client.get("/pokemon/pikachu")
+
+    assert response.status_code == 502
