@@ -30,3 +30,8 @@ fetch uses HTTPX to send the request, and that your backend is now the client. T
 for errors related to timed out,connection failed fetch raises error handlors
 otherwise get_pokemon do the furthur stuff and error related to wrong url fromuser
 than fastapi do the fn which is executed and uvicorn than response witht he result
+
+Configuration
+no API keys or secrets are needed, because PokéAPI is free and open, and .env.example exists to show that nothing is required.
+
+CACHE AND INPUT LENGTH CONTRAINT NOT DONE
